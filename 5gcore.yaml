@@ -1,0 +1,122 @@
+version: '3'
+
+services:
+  # upf_build:
+  #   build: Dockerfile.upf
+  #   image: customed_upf:1.0
+  mongo:
+    image: mongo
+    volumes:
+    - ./docker_volumes/mongodb:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: open5gs
+  amf:
+    image: gradiant/open5gs:2.7.5
+    command:
+    - open5gs-amfd
+    restart: on-failure
+    volumes:
+    - ./config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml
+
+  ausf:
+    image: gradiant/open5gs:2.7.5
+    command:
+    - open5gs-ausfd
+    restart: on-failure
+    volumes:
+    - ./config/ausf.yaml:/opt/open5gs/etc/open5gs/ausf.yaml
+
+  bsf:
+    image: gradiant/open5gs:2.7.5
+    command:
+    - open5gs-bsfd
+    restart: on-failure
+    volumes:
+    - ./config/bsf.yaml:/opt/open5gs/etc/open5gs/bsf.yaml
+
+  nrf:
+    image: gradiant/open5gs:2.7.5
+    command: open5gs-nrfd
+    restart: on-failure
+    volumes:
+    - ./config/nrf.yaml:/opt/open5gs/etc/open5gs/nrf.yaml
+
+  nssf:
+    image: gradiant/open5gs:2.7.5
+    command: open5gs-nssfd
+    restart: on-failure
+    volumes:
+    - ./config/nssf.yaml:/opt/open5gs/etc/open5gs/nssf.yaml
+
+
+  pcf:
+    image: gradiant/open5gs:2.7.5
+    command:
+    - open5gs-pcfd
+    volumes:
+    - ./config/pcf.yaml:/opt/open5gs/etc/open5gs/pcf.yaml
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart: on-failure
+
+  scp:
+    image: gradiant/open5gs:2.7.5
+    command: open5gs-scpd
+    volumes:
+    - ./config/scp.yaml:/opt/open5gs/etc/open5gs/scp.yaml
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart: on-failure
+
+  smf:
+    image: gradiant/open5gs:2.7.5
+    #It is necessary to mount the configuration file if pcfr is not deployed
+    volumes:
+    - ./config/smf.yaml:/opt/open5gs/etc/open5gs/smf.yaml
+    restart: on-failure
+    command: open5gs-smfd
+
+  udm:
+    image: gradiant/open5gs:2.7.5
+    restart: on-failure
+    volumes:
+    - ./config/udm.yaml:/opt/open5gs/etc/open5gs/udm.yaml
+    command:
+    - open5gs-udmd
+
+  udr:
+    image: gradiant/open5gs:2.7.5
+    restart: on-failure
+    volumes:
+    - ./config/udr.yaml:/opt/open5gs/etc/open5gs/udr.yaml
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    command:
+    - open5gs-udrd
+
+  upf:
+    image: gradiant/open5gs:2.7.5
+    user: root
+    volumes:
+    - ./config/upf.yaml:/opt/open5gs/etc/open5gs/upf.yaml
+    command:
+    - open5gs-upfd
+    cap_add:
+    - all
+    privileged: true
+    restart: on-failure
+    # environment:
+    # ENABLE_NAT: "false"
+    ports:
+    - 2152:2152
+    # depends_on:
+    # - upf_build
+
+  webui:
+    image: gradiant/open5gs-webui:2.7.5
+    restart: on-failure
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+      NODE_ENV: dev
+    ports:
+    - 9999:9999

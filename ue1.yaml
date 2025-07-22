@@ -1,0 +1,24 @@
+version: '3'
+services: 
+  ues1:
+    image: customed_ueransim:1.0
+    command: ['ue','-n','1']
+    cap_add:
+      - all
+    privileged: true
+    environment:
+      GNB_HOSTNAME: gnb1
+      APN: internet
+      MSISDN: '0000000011'
+      MCC: '999'
+      MNC: '70'
+      KEY: '465B5CE8B199B49FAA5F0A2EE238A6BC'
+      OP_TYPE: OPC
+      OP: 'E8ED289DEBA952E4283B54E88E6183CA'
+      SST: '1'
+      SD: '0xffffff'
+    depends_on:
+      - base
+  base:
+    build: Dockerfile.ue
+    image: customed_ueransim:1.0
