@@ -99,7 +99,7 @@ services:
     user: root
     volumes:
     - ./config/upf.yaml:/opt/open5gs/etc/open5gs/upf.yaml
-    command:
+    command: 
     - open5gs-upfd
     cap_add:
     - all
@@ -120,3 +120,16 @@ services:
       NODE_ENV: dev
     ports:
     - 9999:9999
+  gnb1:
+    image: gradiant/ueransim:3.2.6
+    container_name: gnb1
+    command: 
+      - gnb
+    environment:
+      AMF_HOSTNAME: amf
+      GNB_HOSTNAME: gnb1
+      TAC: '1'
+      MCC: '999'
+      MNC: '70'
+      SST: '1'
+      SD: '0xffffff'
